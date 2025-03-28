@@ -162,6 +162,7 @@ import SearchVideo from "./SearchVideo";
 
 const VideoPlayer = ({ roomCode, socket }) => {
   const [videoId, setVideoId] = useState(null);
+  const [videoError, setVideoError] = useState(false);
   const playerRef = useRef(null);
   const [isInitiator, setIsInitiator] = useState(false);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
@@ -172,6 +173,7 @@ const VideoPlayer = ({ roomCode, socket }) => {
   const [duration, setDuration] = useState(0);
   const progressIntervalRef = useRef(null);
 
+  
   // Progress update function
   const updateProgress = () => {
     if (playerRef.current) {
@@ -344,20 +346,6 @@ const VideoPlayer = ({ roomCode, socket }) => {
     }
   };
         
-//   const playerOptions = {
-//     height: '540', // Increased height
-//     width: '960',  // Increased width
-//     playerVars: {
-//       autoplay: 0,
-//       controls: 1,
-//       modestbranding: 1,
-//       rel: 0,
-//       showinfo: 0, // Hides video information
-//       iv_load_policy: 3,// Disables annotations
-//       playsinline: 1 
-//     }
-//   };
-
 const playerOptions = {
     height: '100%', 
     width: '100%',
