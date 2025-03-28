@@ -344,45 +344,67 @@ const VideoPlayer = ({ roomCode, socket }) => {
     }
   };
         
-  const playerOptions = {
-    height: '540', // Increased height
-    width: '960',  // Increased width
+//   const playerOptions = {
+//     height: '540', // Increased height
+//     width: '960',  // Increased width
+//     playerVars: {
+//       autoplay: 0,
+//       controls: 1,
+//       modestbranding: 1,
+//       rel: 0,
+//       showinfo: 0, // Hides video information
+//       iv_load_policy: 3,// Disables annotations
+//       playsinline: 1 
+//     }
+//   };
+
+const playerOptions = {
+    height: '100%', 
+    width: '100%',
     playerVars: {
       autoplay: 0,
       controls: 0,
+      playsinline: 1, // Critical for mobile compatibility
+      mute: 0, // Can help with autoplay restrictions
+      origin: window.location.origin, // Add origin for security
       modestbranding: 1,
       rel: 0,
-      showinfo: 0, // Hides video information
-      iv_load_policy: 3 // Disables annotations
+      showinfo: 0,
+      iv_load_policy: 3
     }
+  };
+ // Add error handling for video loading
+ const handleVideoError = (event) => {
+    console.error('Video error:', event);
+    alert('No se pudo cargar el video. Por favor, intenta con otro.');
   };
 
   return (
-    <div className="video-player-container max-w-[1200px] mx-auto p-6 bg-gradient-to-br from-purple-50 to-purple-100 min-h-screen">
-      <div className="bg-white shadow-2xl rounded-2xl overflow-hidden">
-        {/* Search component now placed above the video */}
-        <div className="p-6 bg-purple-600 text-white">
-          <div className="max-w-3xl mx-auto">
+    <div className="video-player-container w-full min-h-screen bg-gradient-to-br from-purple-50 to-purple-100 p-4 md:p-6">
+      <div className="bg-white shadow-2xl rounded-2xl overflow-hidden max-w-full">
+        <div className="p-4 md:p-6 bg-purple-600 text-white">
+          <div className="max-w-full mx-auto">
             <SearchVideo onVideoSelect={handleVideoSelect} />
           </div>
         </div>
         
         {videoId && (
-          <div className="video-controls-wrapper flex flex-col items-center space-y-6 p-6">
-            <div className="video-wrapper shadow-2xl rounded-xl overflow-hidden">
+          <div className="video-controls-wrapper flex flex-col items-center space-y-4 md:space-y-6 p-4 md:p-6">
+            <div className="video-wrapper w-full aspect-video shadow-2xl rounded-xl overflow-hidden">
               <YouTube
                 videoId={videoId}
                 opts={playerOptions}
                 onReady={handlePlayerReady}
                 onStateChange={handleStateChange}
-                className="mx-auto"
+                onError={handleVideoError} // Add error handling
+                className="w-full h-full"
               />
             </div>
 
-            <div className="custom-controls w-full max-w-3xl flex items-center space-x-4 bg-purple-50 p-4 rounded-lg">
+            <div className="custom-controls w-full flex items-center space-x-2 md:space-x-4 bg-purple-50 p-3 md:p-4 rounded-lg">
               <button 
                 onClick={togglePlayPause} 
-                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors transform hover:scale-105"
+                className="px-4 py-2 md:px-6 md:py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors transform hover:scale-105 text-sm md:text-base"
               >
                 {isPlaying ? 'Pausar' : 'Reproducir'}
               </button>
@@ -393,13 +415,12 @@ const VideoPlayer = ({ roomCode, socket }) => {
                 max="100" 
                 value={progress} 
                 onChange={handleProgressSeek}
-                className="flex-grow h-3 bg-purple-200 rounded-full appearance-none cursor-pointer 
+                className="flex-grow h-2 md:h-3 bg-purple-200 rounded-full appearance-none cursor-pointer 
                   [&::-webkit-slider-thumb]:appearance-none 
-                  [&::-webkit-slider-thumb]:w-6 
-                  [&::-webkit-slider-thumb]:h-6 
+                  [&::-webkit-slider-thumb]:w-4 md:w-6 
+                  [&::-webkit-slider-thumb]:h-4 md:h-6 
                   [&::-webkit-slider-thumb]:bg-purple-600 
-                  [&::-webkit-slider-thumb]:rounded-full 
-                  hover:[&::-webkit-slider-thumb]:bg-purple-700"
+                  [&::-webkit-slider-thumb]:rounded-full"
               />
             </div>
           </div>

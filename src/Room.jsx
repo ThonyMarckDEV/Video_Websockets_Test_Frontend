@@ -28,7 +28,7 @@ const Room = () => {
   }, []);
 
   useEffect(() => {
-    const socket = io('http://localhost:3001', {
+    const socket = io('http://192.168.18.9:3001', {
       transports: ['websocket'],
       forceNew: true,
       reconnection: true,
