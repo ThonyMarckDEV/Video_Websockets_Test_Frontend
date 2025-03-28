@@ -361,11 +361,6 @@ const playerOptions = {
       iv_load_policy: 3
     }
   };
- // Add error handling for video loading
- const handleVideoError = (event) => {
-    console.error('Video error:', event);
-    alert('No se pudo cargar el video. Por favor, intenta con otro.');
-  };
 
   return (
     <div className="video-player-container w-full min-h-screen bg-gradient-to-br from-purple-50 to-purple-100 p-4 md:p-6">
@@ -384,7 +379,6 @@ const playerOptions = {
                 opts={playerOptions}
                 onReady={handlePlayerReady}
                 onStateChange={handleStateChange}
-                onError={handleVideoError} // Add error handling
                 className="w-full h-full"
               />
             </div>
