@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.search-container {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+.search-input {
+    flex-grow: 1;
+    padding: 8px;
+    margin-right: 10px;
+}
+
+.search-button {
+    padding: 8px 15px;
+}
+
+.video-list {
+    list-style: none;
+    padding: 0;
+}
+
+.video-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    padding: 10px;
+}
+
+.video-thumbnail {
+    margin-right: 15px;
+}
+
+.error-message {
+    color: red;
+    margin-bottom: 10px;
+}
+
