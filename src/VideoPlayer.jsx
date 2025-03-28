@@ -172,28 +172,25 @@ const VideoPlayer = ({ roomCode, socket }) => {
   const [duration, setDuration] = useState(0);
   const progressIntervalRef = useRef(null);
 
-    // Función para actualizar el progreso
-    const updateProgress = () => {
-        if (playerRef.current) {
-        const currentTime = playerRef.current.getCurrentTime();
-        const progressPercentage = (currentTime / duration) * 100;
-        setProgress(progressPercentage);
-        }
-    };
+  // Progress update function
+  const updateProgress = () => {
+    if (playerRef.current) {
+      const currentTime = playerRef.current.getCurrentTime();
+      const progressPercentage = (currentTime / duration) * 100;
+      setProgress(progressPercentage);
+    }
+  };
 
-// Efecto para manejar el seguimiento del progreso
+  // Progress tracking effect
   useEffect(() => {
-    // Limpiar cualquier intervalo existente
     if (progressIntervalRef.current) {
       clearInterval(progressIntervalRef.current);
     }
 
-    // Configurar nuevo intervalo si está reproduciendo
     if (isPlaying) {
       progressIntervalRef.current = setInterval(updateProgress, 1000);
     }
 
-    // Limpiar intervalo al desmontar o cambiar estado
     return () => {
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
@@ -204,7 +201,6 @@ const VideoPlayer = ({ roomCode, socket }) => {
   useEffect(() => {
     if (!socket) return;
 
-    // Recuperamos el manejador de sincronización original
     const handleVideoSync = ({ videoId, time, state, initiator }) => {
       if (syncThrottleRef.current) return;
       syncThrottleRef.current = true;
@@ -234,7 +230,7 @@ const VideoPlayer = ({ roomCode, socket }) => {
         currentPlayer.seekTo(time);
       }
 
-      // Gestionar estado de reproducción
+      // Manage play/pause state
       if (state === "play") {
         if (currentPlayer.getPlayerState() !== YouTube.PlayerState.PLAYING) {
           currentPlayer.playVideo();
@@ -255,7 +251,7 @@ const VideoPlayer = ({ roomCode, socket }) => {
     };
   }, [socket, isPlayerReady]);
 
-  // Controles personalizados de reproducción
+  // Custom play/pause controls
   const togglePlayPause = () => {
     if (!playerRef.current) return;
 
@@ -265,7 +261,6 @@ const VideoPlayer = ({ roomCode, socket }) => {
       playerRef.current.playVideo();
     }
   };
-
 
   const handleStateChange = (event) => {
     if (!socket || isInitiator) return;
@@ -309,7 +304,7 @@ const VideoPlayer = ({ roomCode, socket }) => {
     playerRef.current = event.target;
     setIsPlayerReady(true);
     
-    // Obtener duración del video
+    // Get video duration
     const totalDuration = event.target.getDuration();
     setDuration(totalDuration);
   };
@@ -328,75 +323,88 @@ const VideoPlayer = ({ roomCode, socket }) => {
     setTimeout(() => setIsInitiator(false), 1000);
   };
 
+  // Progress seek method
+  const handleProgressSeek = (e) => {
+    if (!playerRef.current) return;
 
-    // Modificar método de búsqueda para actualizar progreso
-    const handleProgressSeek = (e) => {
-        if (!playerRef.current) return;
-
-        const seekPercentage = parseFloat(e.target.value);
-        const seekTime = (seekPercentage / 100) * duration;
-        
-        playerRef.current.seekTo(seekTime);
-        setProgress(seekPercentage);
-        
-        // Emitir evento de sincronización al buscar
-        if (!isInitiator && socket) {
-            socket.emit('update_video', {
-            roomCode,
-            videoId: playerRef.current.getVideoData().video_id,
-            time: seekTime,
-            state: isPlaying ? 'play' : 'pause'
-            });
-        }
-    };
+    const seekPercentage = parseFloat(e.target.value);
+    const seekTime = (seekPercentage / 100) * duration;
+    
+    playerRef.current.seekTo(seekTime);
+    setProgress(seekPercentage);
+    
+    // Emit sync event when seeking
+    if (!isInitiator && socket) {
+      socket.emit('update_video', {
+        roomCode,
+        videoId: playerRef.current.getVideoData().video_id,
+        time: seekTime,
+        state: isPlaying ? 'play' : 'pause'
+      });
+    }
+  };
         
   const playerOptions = {
-    height: '390',
-    width: '640',
-    playerVars: { 
+    height: '540', // Increased height
+    width: '960',  // Increased width
+    playerVars: {
       autoplay: 0,
       controls: 0,
       modestbranding: 1,
       rel: 0,
-      showinfo: 0, // Oculta la información del video
-      iv_load_policy: 3 // Desactiva las anotaciones
+      showinfo: 0, // Hides video information
+      iv_load_policy: 3 // Disables annotations
     }
   };
 
   return (
-    <div className="video-player-container">
-      <div className="search-video-section">
-        <SearchVideo onVideoSelect={handleVideoSelect} />
-      </div>
-      
-      {videoId && (
-        <div className="video-controls-wrapper">
-          <YouTube
-            videoId={videoId}
-            opts={playerOptions}
-            onReady={handlePlayerReady}
-            onStateChange={handleStateChange}
-          />
-
-          <div className="custom-controls">
-            <button 
-              onClick={togglePlayPause} 
-              className="play-pause-btn"
-            >
-              {isPlaying ? 'Pausar' : 'Reproducir'}
-            </button>
-
-            <input 
-              type="range" 
-              min="0" 
-              max="100" 
-              value={progress} 
-              onChange={handleProgressSeek}
-              className="progress-bar"
-            />
+    <div className="video-player-container max-w-[1200px] mx-auto p-6 bg-gradient-to-br from-purple-50 to-purple-100 min-h-screen">
+      <div className="bg-white shadow-2xl rounded-2xl overflow-hidden">
+        {/* Search component now placed above the video */}
+        <div className="p-6 bg-purple-600 text-white">
+          <div className="max-w-3xl mx-auto">
+            <SearchVideo onVideoSelect={handleVideoSelect} />
           </div>
         </div>
-      )}
+        
+        {videoId && (
+          <div className="video-controls-wrapper flex flex-col items-center space-y-6 p-6">
+            <div className="video-wrapper shadow-2xl rounded-xl overflow-hidden">
+              <YouTube
+                videoId={videoId}
+                opts={playerOptions}
+                onReady={handlePlayerReady}
+                onStateChange={handleStateChange}
+                className="mx-auto"
+              />
+            </div>
+
+            <div className="custom-controls w-full max-w-3xl flex items-center space-x-4 bg-purple-50 p-4 rounded-lg">
+              <button 
+                onClick={togglePlayPause} 
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors transform hover:scale-105"
+              >
+                {isPlaying ? 'Pausar' : 'Reproducir'}
+              </button>
+
+              <input 
+                type="range" 
+                min="0" 
+                max="100" 
+                value={progress} 
+                onChange={handleProgressSeek}
+                className="flex-grow h-3 bg-purple-200 rounded-full appearance-none cursor-pointer 
+                  [&::-webkit-slider-thumb]:appearance-none 
+                  [&::-webkit-slider-thumb]:w-6 
+                  [&::-webkit-slider-thumb]:h-6 
+                  [&::-webkit-slider-thumb]:bg-purple-600 
+                  [&::-webkit-slider-thumb]:rounded-full 
+                  hover:[&::-webkit-slider-thumb]:bg-purple-700"
+              />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

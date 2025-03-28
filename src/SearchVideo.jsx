@@ -138,12 +138,12 @@ const SearchVideo = ({ onVideoSelect }) => {
           onChange={(e) => setQuery(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && searchVideos()}
           placeholder="Search for videos"
-          className="flex-grow px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-grow px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
         />
         <button 
           onClick={searchVideos} 
           disabled={loading}
-          className="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600 transition-colors disabled:opacity-50"
+          className="bg-blue-500 text-black px-4 py-2 rounded-r-md hover:bg-blue-600 transition-colors disabled:opacity-50"
         >
           {loading ? 'Searching...' : 'Search'}
         </button>
@@ -161,7 +161,7 @@ const SearchVideo = ({ onVideoSelect }) => {
           {videos.map((video) => (
             <div 
               key={video.id.videoId} 
-              className="bg-gray-100 p-3 rounded-md flex items-center hover:bg-gray-200 transition-colors cursor-pointer"
+              className="bg-gray-100 p-3 rounded-md flex items-center hover:bg-gray-200 transition-colors cursor-pointer text-black"
               onClick={() => {
                 console.log('Selected Video ID:', video.id.videoId);
                 onVideoSelect(video.id.videoId);
