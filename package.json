@@ -21,7 +21,8 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "web-vitals": "^2.1.4",
-    "youtube-watch-party-frontend": "file:"
+    "youtube-watch-party-frontend": "file:",
+    "ytdl-core": "^4.11.5"
   },
   "scripts": {
     "start": "react-scripts start",
