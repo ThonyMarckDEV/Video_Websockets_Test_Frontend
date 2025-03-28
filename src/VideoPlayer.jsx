@@ -350,7 +350,8 @@ const playerOptions = {
     height: '100%', 
     width: '100%',
     playerVars: {
-      autoplay: 0,
+      loop:1,
+      autoplay: 1,
       controls: 0,
       playsinline: 1, // Critical for mobile compatibility
       mute: 0, // Can help with autoplay restrictions
