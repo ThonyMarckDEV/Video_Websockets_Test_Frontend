@@ -14,7 +14,8 @@ const VideoPlayer = ({ roomCode, socket }) => {
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const progressIntervalRef = useRef(null);
-  const [pendingVideoState, setPendingVideoState] = useState(null);
+
+  const [connectedUsers, setConnectedUsers] = useState(1);
 
   // Función para actualizar el progreso del video
   const updateProgress = () => {
@@ -24,6 +25,20 @@ const VideoPlayer = ({ roomCode, socket }) => {
       setProgress(progressPercentage);
     }
   };
+
+  // Agregar efecto para escuchar actualizaciones de usuarios
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleUsersUpdate = ({ count }) => {
+      setConnectedUsers(count);
+    };
+
+    socket.on("users_update", handleUsersUpdate);
+    return () => {
+      socket.off("users_update", handleUsersUpdate);
+    };
+  }, [socket]);
 
   // Efecto para rastrear el progreso
   useEffect(() => {
@@ -183,12 +198,16 @@ const VideoPlayer = ({ roomCode, socket }) => {
 
   return (
     <div className="video-player-container w-full min-h-screen bg-gradient-to-br from-purple-50 to-purple-100 p-4 md:p-6">
-      <div className="bg-white shadow-2xl rounded-2xl overflow-hidden max-w-full">
-        <div className="p-4 md:p-6 bg-purple-600 text-white">
-          <div className="max-w-full mx-auto">
-            <SearchVideo onVideoSelect={handleVideoSelect} />
+
+      <div className="p-4 md:p-6 bg-purple-600 text-white">
+        <div className="max-w-full mx-auto flex justify-between items-center">
+          <SearchVideo onVideoSelect={handleVideoSelect} />
+          <div className="ml-4 flex items-center bg-purple-500 px-3 py-1 rounded-full">
+            <span className="mr-2">👥</span>
+            <span className="font-semibold">{connectedUsers}</span>
           </div>
         </div>
+
         
         {videoId && (
           <div className="video-controls-wrapper flex flex-col items-center space-y-4 md:space-y-6 p-4 md:p-6">
