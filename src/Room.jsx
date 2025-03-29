@@ -28,7 +28,7 @@ const Room = () => {
   }, []);
 
   useEffect(() => {
-    const socket = io('http://192.168.18.9:3001', {
+    const socket = io('https://cismedictunnel.thonymarckdev.online', {
       transports: ['websocket'],
       forceNew: true,
       reconnection: true,
