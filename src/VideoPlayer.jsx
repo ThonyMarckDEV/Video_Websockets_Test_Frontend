@@ -30,7 +30,6 @@ const VideoPlayer = ({ roomCode, socket }) => {
       if (videoState && videoState.videoId) {
         // Cargar el video y sincronizar la reproducción
         setVideoId(videoState.videoId);
-        // Puedes esperar a que el reproductor esté listo para buscar el tiempo correcto
         setTimeout(() => {
           if (playerRef.current) {
             playerRef.current.seekTo(videoState.time);
@@ -40,7 +39,7 @@ const VideoPlayer = ({ roomCode, socket }) => {
               playerRef.current.pauseVideo();
             }
           }
-        }, 1000);
+        }, 500); // Ajusta el tiempo de espera si es necesario
       }
     };
   
@@ -238,12 +237,12 @@ const VideoPlayer = ({ roomCode, socket }) => {
             </div>
 
             <div className="custom-controls w-full flex items-center space-x-2 md:space-x-4 bg-purple-50 p-3 md:p-4 rounded-lg">
-              <button
+              {/* <button
                 onClick={togglePlayPause}
                 className="px-4 py-2 md:px-6 md:py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors transform hover:scale-105 text-sm md:text-base"
               >
                 {isPlaying ? "Pausar" : "Reproducir"}
-              </button>
+              </button> */}
 
               <input
                 type="range"
