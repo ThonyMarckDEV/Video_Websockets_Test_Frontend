@@ -24,6 +24,32 @@ const VideoPlayer = ({ roomCode, socket }) => {
     }
   };
 
+  useEffect(() => {
+    if (!socket) return;
+    const handleRoomJoined = ({ roomCode, videoState }) => {
+      if (videoState && videoState.videoId) {
+        // Cargar el video y sincronizar la reproducción
+        setVideoId(videoState.videoId);
+        // Puedes esperar a que el reproductor esté listo para buscar el tiempo correcto
+        setTimeout(() => {
+          if (playerRef.current) {
+            playerRef.current.seekTo(videoState.time);
+            if (videoState.state === "play") {
+              playerRef.current.playVideo();
+            } else {
+              playerRef.current.pauseVideo();
+            }
+          }
+        }, 1000);
+      }
+    };
+  
+    socket.on("room_joined", handleRoomJoined);
+    return () => {
+      socket.off("room_joined", handleRoomJoined);
+    };
+  }, [socket]);
+
   // Efecto para rastrear el progreso
   useEffect(() => {
     if (progressIntervalRef.current) {
