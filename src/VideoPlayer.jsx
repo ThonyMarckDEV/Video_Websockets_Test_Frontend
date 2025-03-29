@@ -25,49 +25,6 @@ const VideoPlayer = ({ roomCode, socket }) => {
     }
   };
 
-  // Actualizar el efecto que maneja la unión a la sala
-useEffect(() => {
-  if (!socket) return;
-  const handleRoomJoined = ({ roomCode, videoState }) => {
-    if (videoState?.videoId) {
-      setVideoId(videoState.videoId);
-      // Guardar estado para aplicar cuando el reproductor esté listo
-      setPendingVideoState({
-        time: videoState.time,
-        state: videoState.state
-      });
-    }
-  };
-
-  socket.on("room_joined", handleRoomJoined);
-  return () => socket.off("room_joined", handleRoomJoined);
-}, [socket]);
-
-// Actualizar el manejador cuando el reproductor está listo
-const handlePlayerReady = (event) => {
-  console.log("Player is ready");
-  playerRef.current = event.target;
-  setIsPlayerReady(true);
-  setDuration(event.target.getDuration());
-
-  // Aplicar sincronización pendiente si existe
-  if (pendingVideoState) {
-    const { time, state } = pendingVideoState;
-    event.target.seekTo(time, true);
-    
-    if (state === "play") {
-      event.target.playVideo();
-      setIsPlaying(true);
-    } else {
-      event.target.pauseVideo();
-      setIsPlaying(false);
-    }
-    
-    setPendingVideoState(null);
-    lastSyncTimeRef.current = Date.now();
-  }
-};
-
   // Efecto para rastrear el progreso
   useEffect(() => {
     if (progressIntervalRef.current) {
@@ -87,70 +44,46 @@ const handlePlayerReady = (event) => {
   useEffect(() => {
     if (!socket) return;
 
-    // const handleVideoSync = ({ videoId, time, state, initiator }) => {
-    //   if (syncThrottleRef.current) return;
-    //   syncThrottleRef.current = true;
-    //   setTimeout(() => {
-    //     syncThrottleRef.current = false;
-    //   }, 500);
-
-    //   console.log("Received sync event:", { videoId, time, state, initiator });
-      
-    //   if (!isPlayerReady || !playerRef.current) {
-    //     console.log("Player not ready, queuing video");
-    //     setVideoId(videoId);
-    //     return;
-    //   }
-
-    //   const currentPlayer = playerRef.current;
-    //   const currentVideoId = currentPlayer.getVideoData().video_id;
-    //   const currentTime = currentPlayer.getCurrentTime();
-    //   const timeDifference = Math.abs(currentTime - time);
-      
-    //   if (currentVideoId !== videoId) {
-    //     console.log("Loading new video:", videoId);
-    //     currentPlayer.loadVideoById(videoId, time);
-    //   } else if (timeDifference > 1) {
-    //     console.log(`Syncing time: current ${currentTime}, sync ${time}`);
-    //     currentPlayer.seekTo(time);
-    //   }
-
-    //   if (state === "play") {
-    //     if (currentPlayer.getPlayerState() !== YouTube.PlayerState.PLAYING) {
-    //       currentPlayer.playVideo();
-    //     }
-    //   } else if (state === "pause") {
-    //     if (currentPlayer.getPlayerState() !== YouTube.PlayerState.PAUSED) {
-    //       currentPlayer.pauseVideo();
-    //     }
-    //   }
-    //   lastSyncTimeRef.current = Date.now();
-    // };
-
     const handleVideoSync = ({ videoId, time, state, initiator }) => {
-      if (syncThrottleRef.current || socket.id === initiator) return;
+      if (syncThrottleRef.current) return;
+      syncThrottleRef.current = true;
+      setTimeout(() => {
+        syncThrottleRef.current = false;
+      }, 500);
+
+      console.log("Received sync event:", { videoId, time, state, initiator });
       
-      // Si el video actual es diferente, establecer nuevo video
-      if (playerRef.current?.getVideoData().video_id !== videoId) {
+      if (!isPlayerReady || !playerRef.current) {
+        console.log("Player not ready, queuing video");
         setVideoId(videoId);
-        setPendingVideoState({ time, state });
-      } else {
-        // Solo sincronizar si hay diferencia mayor a 1 segundo
-        const currentTime = playerRef.current.getCurrentTime();
-        if (Math.abs(currentTime - time) > 1) {
-          playerRef.current.seekTo(time, true);
+        return;
+      }
+
+      const currentPlayer = playerRef.current;
+      const currentVideoId = currentPlayer.getVideoData().video_id;
+      const currentTime = currentPlayer.getCurrentTime();
+      const timeDifference = Math.abs(currentTime - time);
+      
+      if (currentVideoId !== videoId) {
+        console.log("Loading new video:", videoId);
+        currentPlayer.loadVideoById(videoId, time);
+      } else if (timeDifference > 1) {
+        console.log(`Syncing time: current ${currentTime}, sync ${time}`);
+        currentPlayer.seekTo(time);
+      }
+
+      if (state === "play") {
+        if (currentPlayer.getPlayerState() !== YouTube.PlayerState.PLAYING) {
+          currentPlayer.playVideo();
         }
-        
-        if (state === "play" && !isPlaying) {
-          playerRef.current.playVideo();
-        } else if (state === "pause" && isPlaying) {
-          playerRef.current.pauseVideo();
+      } else if (state === "pause") {
+        if (currentPlayer.getPlayerState() !== YouTube.PlayerState.PAUSED) {
+          currentPlayer.pauseVideo();
         }
       }
-      
-      syncThrottleRef.current = true;
-      setTimeout(() => syncThrottleRef.current = false, 500);
+      lastSyncTimeRef.current = Date.now();
     };
+
 
     socket.on("sync_video", handleVideoSync);
     return () => {
@@ -194,13 +127,13 @@ const handlePlayerReady = (event) => {
   };
 
   // // Cuando el reproductor está listo, se guarda la referencia y se obtiene la duración
-  // const handlePlayerReady = (event) => {
-  //   console.log("Player is ready");
-  //   playerRef.current = event.target;
-  //   setIsPlayerReady(true);
-  //   const totalDuration = event.target.getDuration();
-  //   setDuration(totalDuration);
-  // };
+  const handlePlayerReady = (event) => {
+    console.log("Player is ready");
+    playerRef.current = event.target;
+    setIsPlayerReady(true);
+    const totalDuration = event.target.getDuration();
+    setDuration(totalDuration);
+  };
 
   // Selección de video mediante búsqueda
   const handleVideoSelect = (newVideoId) => {
