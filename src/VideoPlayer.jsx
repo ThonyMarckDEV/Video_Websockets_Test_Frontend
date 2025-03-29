@@ -15,7 +15,8 @@ const VideoPlayer = ({ roomCode, socket }) => {
   const [duration, setDuration] = useState(0);
   const progressIntervalRef = useRef(null);
 
-  const [connectedUsers, setConnectedUsers] = useState(1);
+ // Inicializar en 0 en lugar de 1
+const [connectedUsers, setConnectedUsers] = useState(0); // <- Cambiar a 0
 
   // Función para actualizar el progreso del video
   const updateProgress = () => {
@@ -26,18 +27,20 @@ const VideoPlayer = ({ roomCode, socket }) => {
     }
   };
 
-  // Agregar efecto para escuchar actualizaciones de usuarios
+    // Modificar el efecto que maneja room_joined
   useEffect(() => {
     if (!socket) return;
-
-    const handleUsersUpdate = ({ count }) => {
-      setConnectedUsers(count);
+    
+    const handleRoomJoined = ({ videoState, usersCount }) => {
+      if (videoState?.videoId) {
+        setVideoId(videoState.videoId);
+        // Actualizar el contador de usuarios
+        setConnectedUsers(usersCount);
+      }
     };
 
-    socket.on("users_update", handleUsersUpdate);
-    return () => {
-      socket.off("users_update", handleUsersUpdate);
-    };
+    socket.on("room_joined", handleRoomJoined);
+    return () => socket.off("room_joined", handleRoomJoined);
   }, [socket]);
 
   // Efecto para rastrear el progreso
